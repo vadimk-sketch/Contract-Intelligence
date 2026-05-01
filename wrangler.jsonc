@@ -1,34 +1,42 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "webapp",
+  "name": "smartland-contracts",
   "compatibility_date": "2026-04-13",
   "pages_build_output_dir": "./dist",
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "vars": {
+    "APP_NAME": "Smartland Contract Intelligence",
+    "APP_URL": "https://smartland-contracts.pages.dev",
+    "EMAIL_FROM": "notifications@smartland.com",
+    "EMAIL_FROM_NAME": "Smartland Contracts",
+    "INGEST_EMAIL": "contracts@smartland.com",
+    "AI_BUDGET_MONTHLY_USD": "250",
+    "BRAND_COLOR": "#1F4E79",
+    "ENVIRONMENT": "production"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "smartland-contracts-production",
+      "database_id": "838e49b6-7031-4de3-beb6-fa7f4d35b729"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "DOCS",
+      "bucket_name": "smartland-contracts-docs"
+    },
+    {
+      "binding": "BACKUPS",
+      "bucket_name": "smartland-contracts-backups"
+    }
   ]
-  // "vars": {
-  //   "MY_VAR": "my-variable"
-  // },
-  // "kv_namespaces": [
-  //   {
-  //     "binding": "MY_KV_NAMESPACE",
-  //     "id": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  //   }
-  // ],
-  // "r2_buckets": [
-  //   {
-  //     "binding": "MY_BUCKET",
-  //     "bucket_name": "my-bucket"
-  //   }
-  // ],
-  // "d1_databases": [
-  //   {
-  //     "binding": "MY_DB",
-  //     "database_name": "my-database",
-  //     "database_id": ""
-  //   }
-  // ],
-  // "ai": {
-  //   "binding": "AI"
-  // }
+  // Cron triggers for Pages projects are configured via the Cloudflare API,
+  // not wrangler.jsonc. The handler lives in src/index.tsx -> scheduled().
+  // Schedule: "0 11 * * *" (daily 11:00 UTC = 7am ET EST / 8am ET EDT).
+  //
+  // "ai" binding intentionally omitted in local dev — requires CLOUDFLARE_API_TOKEN.
+  // Re-enable in production wrangler.jsonc by adding: "ai": { "binding": "AI" }
 }
