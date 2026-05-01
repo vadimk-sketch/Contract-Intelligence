@@ -1,0 +1,42 @@
+name: Daily Reminder Cron
+
+# Fires the reminder dispatcher + escalation sweep on the deployed Pages app.
+# Cloudflare Pages does not support native cron triggers, so we use GitHub
+# Actions as the external scheduler.
+#
+# Schedule: 11:00 UTC daily = 7am ET (EST) / 8am ET (EDT)
+# Manual: trigger via "Run workflow" button on the Actions tab.
+
+on:
+  schedule:
+    - cron: '0 11 * * *'
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: POST /api/jobs/cron/tick
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CRON_SECRET:-}" ]; then
+            echo "::error::CRON_SECRET repository secret is not set"
+            exit 1
+          fi
+
+          response=$(curl -sS -w "\nHTTP_CODE:%{http_code}\n" \
+            -X POST "https://smartland-contracts.pages.dev/api/jobs/cron/tick" \
+            -H "X-Cron-Secret: ${CRON_SECRET}" \
+            -H "Content-Type: application/json" \
+            --max-time 60)
+
+          echo "Response: $response"
+          http_code=$(echo "$response" | grep -oE 'HTTP_CODE:[0-9]+' | cut -d: -f2)
+          if [ "$http_code" != "200" ]; then
+            echo "::error::Cron tick failed with HTTP $http_code"
+            exit 1
+          fi
+          echo "✅ Cron tick completed successfully"
